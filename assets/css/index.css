@@ -1,0 +1,335 @@
+:root {
+    --font-primary: "PT Sans", sans-serif;
+    --font-secondary: Poppins, sans-serif;
+    --color-primary: #96a0a5;
+    --color-secondary: #e3e6e7;
+    --color-extra: #e7edef;
+    --color-light: #fafafa;
+    --color-dark: #030303;
+  }
+  
+  body {
+    font-family: var(--font-secondary);
+    background-color: var(--color-primary);
+  }
+  body #wrapper {
+    opacity: 0;
+    background-color: var(--color-extra);
+    padding: 30px 50px;
+    border-radius: 22px;
+    margin: 60px auto;
+    max-width: 1500px;
+  }
+  
+  header {
+    margin-bottom: 30px;
+  }
+  header a {
+    text-decoration: none;
+  }
+  header .burger {
+    display: block;
+    margin-top: 15px;
+    font-family: var(--font-primary);
+    color: var(--color-dark);
+    font-size: 17px;
+    vertical-align: middle;
+  }
+  header .burger .icon {
+    display: inline-block;
+    width: 20px;
+    position: relative;
+    margin-right: 15px;
+    height: 12px;
+    vertical-align: middle;
+  }
+  header .burger .icon:before, header .burger .icon:after {
+    content: "";
+    position: absolute;
+    background: var(--color-dark);
+    height: 3px;
+    border-radius: 2px;
+    overflow: hidden;
+    width: 100%;
+  }
+  header .burger .icon:before {
+    top: 0px;
+  }
+  header .burger .icon:after {
+    bottom: 2px;
+  }
+  header .top-menu {
+    display: flex;
+    justify-content: flex-end;
+  }
+  header .top-menu li {
+    display: flex;
+    margin-left: 30px;
+  }
+  header .top-menu li:first-child {
+    margin-left: 0;
+  }
+  header .top-menu li a {
+    color: var(--color-dark);
+    text-decoration: none;
+    transition: ease all 0.3s;
+    padding-top: 15px;
+    padding-bottom: 5px;
+    border-radius: 22px;
+    line-height: 100%;
+    font-size: 12px;
+    position: relative;
+  }
+  header .top-menu li a:after {
+    opacity: 0;
+    left: 0;
+    content: "";
+    position: absolute;
+    height: 1px;
+    width: 0%;
+    background-color: var(--color-dark);
+    bottom: 0;
+    transition: ease-in-out all 0.3s;
+  }
+  header .top-menu li a:hover:after {
+    width: 100%;
+    opacity: 1;
+  }
+  
+  .logo {
+    display: block;
+    position: absolute;
+    z-index: 2;
+    margin: 0 auto;
+    height: 45px;
+    width: 170px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: url(https://logoipsum.com/logo/logo-10.svg) center center no-repeat;
+    background-size: 80%;
+  }
+  
+  section h3 {
+    font-family: var(--font-secondary);
+    color: var(--color-dark);
+    font-size: 18px;
+    font-weight: 600;
+  }
+  section .products-category li {
+    margin-top: 40px;
+  }
+  section .products-category li a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: ease all 0.3s;
+    display: inline-block;
+  }
+  section .products-category li a:hover {
+    transform: translatex(5px);
+    color: var(--color-dark);
+  }
+  section .products-category li a.active {
+    color: var(--color-dark);
+  }
+  section .brand-list {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 50px;
+  }
+  section .brand-list li {
+    display: flex;
+  }
+  section .brand-list li a {
+    padding: 16px 20px;
+    border-radius: 18px;
+    text-decoration: none;
+    color: var(--color-primary);
+    font-size: 12px;
+    margin-right: 25px;
+    background: var(--color-light);
+    transition: ease-in-out all 0.3s;
+  }
+  section .brand-list li a:hover {
+    box-shadow: 3px 9px 8px var(--color-secondary);
+    color: var(--color-light);
+    background: var(--color-primary);
+  }
+  section .brand-list li a.active {
+    background: var(--color-dark);
+    color: var(--color-light);
+    font-weight: 600;
+    padding: 16px 28px;
+  }
+  section .search-top .input-wrapper {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 18px;
+    background: var(--color-light);
+    position: relative;
+  }
+  section .search-top .input-wrapper input {
+    background: transparent;
+    border: 0;
+    padding: 12px 25px;
+    font-size: 12px;
+    font-family: var(--font-secondary);
+    outline: none;
+    width: calc(100% - 65px);
+  }
+  section .search-top .input-wrapper button {
+    outline: none;
+    border: 0;
+    background: transparent;
+    position: absolute;
+    right: 10px;
+    top: 12px;
+    cursor: pointer;
+  }
+  section .search-top .input-wrapper button svg {
+    width: 14px;
+    transition: ease-out all 0.3s;
+  }
+  section .search-top .input-wrapper button:hover svg {
+    transform: scale(1.2) rotatey(360deg);
+  }
+  section .card {
+    background: var(--color-light);
+    padding: 20px;
+    border-radius: 28px;
+    position: realtive;
+  }
+  section .card .card-image {
+    background-size: cover;
+    height: 180px;
+    border-radius: 22px;
+  }
+  section .card .card-image.example {
+    background-image: url("https://images.unsplash.com/flagged/photo-1553677969-1d67bbe9d55a?auto=format&fit=crop&w=1350&q=80");
+  }
+  section .card .card-content {
+    position: relative;
+  }
+  section .card .card-content h5 {
+    font-family: var(--font-primary);
+    font-size: 16px;
+    margin-top: 20px;
+    padding: 0 10px;
+  }
+  section .card .card-content p {
+    padding: 0 10px;
+    padding-right: 100px;
+    margin-top: 9px;
+    line-height: 150%;
+    font-size: 11px;
+    font-family: var(--font-secondary);
+    color: var(--color-primary);
+  }
+  section .card .card-content .users {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  section .card .card-content .users li {
+    overflow: hidden;
+    display: block;
+    border-radius: 100%;
+    width: 45px;
+    height: 45px;
+    position: absolute;
+  }
+  section .card .card-content .users li img {
+    width: 100%;
+  }
+  section .card .card-content .users li:nth-child(1) {
+    z-index: 1;
+    right: 0;
+  }
+  section .card .card-content .users li:nth-child(2) {
+    z-index: 2;
+    right: 10px;
+  }
+  section .card .card-content .users li:nth-child(3) {
+    z-index: 3;
+    right: 20px;
+  }
+  section .main-hero-slider {
+    height: 320px;
+    position: relative;
+    border-radius: 22px;
+    left: 0;
+    background-color: var(--color-dark);
+  }
+  section .main-hero-slider .dude {
+    position: absolute;
+    height: calc(100% + 20px);
+    top: -20px;
+    left: 70%;
+    transform: translatex(-50%);
+  }
+  section .main-hero-slider h2 {
+    position: relative;
+    font-size: 30px;
+    font-family: var(--font-primary);
+    color: var(--color-light);
+    top: 50px;
+    left: 50px;
+  }
+  section .main-hero-slider .content-cta {
+    top: 100px;
+    opacity: 0;
+    width: 0;
+    height: 55px;
+    background: var(--color-extra);
+    position: relative;
+    border-radius: 0 22px 22px 0;
+    z-index: 0;
+    display: flex;
+    padding: 2px 2px 0 0;
+  }
+  section .main-hero-slider .content-cta:after {
+    content: "";
+    position: absolute;
+    display: block;
+    top: -42px;
+    left: 0;
+    width: 42px;
+    height: 42px;
+    background: var(--color-dark);
+    border-radius: 0 22px;
+    box-shadow: -1px 17px 0 0 var(--color-extra);
+  }
+  section .main-hero-slider .content-cta:before {
+    content: "";
+    position: absolute;
+    display: block;
+    bottom: -42px;
+    left: 0;
+    width: 42px;
+    height: 42px;
+    background: var(--color-dark);
+    border-radius: 22px 0;
+    box-shadow: -1px -17px 0 0 var(--color-extra);
+  }
+  section .main-hero-slider .content-cta button {
+    outline: none;
+    border: 0;
+    width: 50%;
+    height: 53px;
+    border-radius: 22px;
+    color: var(--color-dark);
+    font-family: var(--font-secondary);
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    display: inline-block;
+    cursor: pointer;
+  }
+  section .main-hero-slider .content-cta button.dark {
+    background: var(--color-dark);
+    color: var(--color-light);
+  }
+  section .product-item {
+    margin: 15px 0;
+    height: 250px;
+  }
