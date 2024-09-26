@@ -1,0 +1,19 @@
+{
+    "name": "uvg/gaming-shop",
+    "description": "Tienda de Videojuegos con alta demanda en el sector",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Uvg\\GamingShop\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "WorkGroup"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "aws/aws-sdk-php": "^3.322"
+    }
+}
