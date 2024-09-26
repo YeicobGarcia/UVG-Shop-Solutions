@@ -1,3 +1,15 @@
+<?php 
+    session_start();    
+    include_once('../Models/adminModel.php');    
+    if (!$_SESSION['user_id']) {
+      header("location: ../views/index.php");
+    }
+    $admClass = new adminModel();
+    $result = array();
+    $result = $admClass->getPedidos();
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,59 +66,40 @@
                             <th>Order ID</th>
                             <th>METODO DE PAGO</th>
                             <th>DATO DE LA ORDEN</th>
-                            <th>INFORMACIÓN DEL ENVÍO</th>
+                            <th>INFORMACIÓN DEL CLIENTE</th>
                             <th>ESTADO</th>
                             <th>Total</th>
                             <th>ACCIÓN</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>109012366687</td>
-                            <td>TARJETA</td>
-                            <td>September 14th 2020<br>4:34:12 pm</td>
-                            <td></td>
-                            <td class="status"><span class="processing">processing</span></td>
-                            <td>Q.1815</td>
-                            <td class="action"><a href="#" class="view">View</a> <a href="#" class="edit">Edit</a></td>
-                        </tr>
-                        <tr>
-                            <td>553840047075</td>
-                            <td>TARJETA</td>
-                            <td>September 12th 2020<br>4:57:29 am</td>
-                            <td></td>
-                            <td class="status"><span class="processing">processing</span></td>
-                            <td>Q.430</td>
-                            <td class="action"><a href="#" class="view">View</a> <a href="#" class="edit">Edit</a></td>
-                        </tr>
-                        <tr>
-                            <td>252665737646</td>
-                            <td>TARJETA</td>
-                            <td>September 10th 2020<br>11:29:33 pm</td>
-                            <td></td>
-                            <td class="status"><span class="processing">processing</span></td>
-                            <td>Q.130</td>
-                            <td class="action"><a href="#" class="view">View</a> <a href="#" class="edit">Edit</a></td>
-                        </tr>
-                        <tr>
-                            <td>790338820324</td>
-                            <td>TARJETA</td>
-                            <td>September 10th 2020<br>10:21:48 am</td>
-                            <td></td>
-                            <td class="status"><span class="processing">processing</span></td>
-                            <td>Q.750</td>
-                            <td class="action"><a href="#" class="view">View</a> <a href="#" class="edit">Edit</a></td>
-                        </tr>
-                        <tr>
-                            <td>133139400916</td>
-                            <td>TARJETA</td>
-                            <td>September 10th 2020<br>10:15:08 am</td>
-                            <td></td>
-                            <td class="status"><span class="processing">processing</span></td>
-                            <td>Q.260</td>
-                            <td class="action"><a href="#" class="view">View</a> <a href="#" class="edit">Edit</a></td>
-                        </tr>
-                        <tr>
+                        <?php
+                            if ($result->num_rows > 0) {
+                            // Salida de datos para cada fila
+                                while($row = $result->fetch_assoc()) {
+                                    echo "<tr>";
+                                    echo "<td>" . $row["id_pedido"] . "</td>";
+                                    echo "<td>TARJETA</td>";
+                                    echo "<td>" . $row["fecha_creacion"] . "</td>";
+                                    echo "<td>" . $row["Nombre"] . "</td>";
+                                    echo "<td class='status'><span class='processing'>" . $row["estado"] . "</span></td>";
+                                    echo "<td>Q.750</td>";
+                                    echo "<td class='action'>";
+                                    echo "<td class='action'>";
+                                    if ($row["estado"] !== "listo") {
+                                        echo "<button class='mark-ready edit' data-id='" . $row["id_pedido"] . "'>Marcar como Listo</button> ";
+                                    } else {
+                                        echo "<span>Pedido Listo</span> ";
+                                    }
+                                    echo "<button class='delete-order view' data-id='" . $row["id_pedido"] . "'>Eliminar</button>";
+                                    echo "</td>";
+                                    echo "</tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='7'>No hay órdenes recientes</td></tr>";
+                            }
+                        ?>
+                        <!---<tr>
                             <td>965488907439</td>
                             <td>TARJETA</td>
                             <td>September 9th 2020</td>
@@ -114,11 +107,60 @@
                             <td class="status"><span class="processing">processing</span></td>
                             <td>Q.750</td>
                             <td class="action"><a href="#" class="view">View</a> <a href="#" class="edit">Edit</a></td>
-                        </tr>
+                        </tr>--->
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 </body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Manejar cambio de estado
+        document.querySelectorAll('.mark-ready').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const orderId = this.getAttribute('data-id');
+                fetch('../Controllers/adminController.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'markReady', id_pedido: orderId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const row = document.getElementById('pedido-' + orderId);
+                        row.querySelector('.status').textContent = 'listo';
+                        this.remove();  // Eliminar el botón de "Marcar como Listo"
+                    } else {
+                        alert('Error al actualizar el estado');
+                    }
+                });
+            });
+        });
+
+        // Manejar eliminación de pedidos
+        document.querySelectorAll('.delete-order').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const orderId = this.getAttribute('data-id');
+                if (confirm('¿Estás seguro de que deseas eliminar este pedido?')) {
+                    fetch('../Controllers/adminController.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'deleteOrder', id_pedido: orderId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const row = document.getElementById('pedido-' + orderId);
+                            row.remove();  // Eliminar la fila del pedido
+                        } else {
+                            alert('Error al eliminar el pedido');
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
 </html>
