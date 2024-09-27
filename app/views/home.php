@@ -13,6 +13,12 @@
     }
     //include_once('../Controllers/crear_pedido.php');    
     //$resultado = $model->crearPedido();
+
+    include_once('../Controllers/productoController.php');
+    include_once('../Controllers/carritoController.php');
+
+    $productController = new ProductController();
+    $productos = $productController->showProducts();
 ?>
 
 <!DOCTYPE html>
@@ -25,24 +31,48 @@
         <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@700&family=Poppins&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-        
     <title>UVGaming-Shop</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        function addToCart() {
-            $.ajax({
-                type: "POST",
-                url: "../Controllers/crear_pedido.php",  // Ruta al archivo PHP que manejará la inserción
-                success: function(response) {
-                    alert(response);  // Muestra la respuesta del servidor
-                },
-                error: function() {
-                    alert("Error al crear el pedido");
-                }
-            });
-        }
-    </script>
 
+
+    <script>
+        // Función para agregar productos al carrito usando LocalStorage vinculado al usuario
+function agregarAlCarrito(id, nombre, descripcion, precio) {
+    // Obtener el ID del usuario de la sesión
+    let userId = <?php echo $_SESSION['user_id']; ?>;
+    
+    // Crear una clave única para el carrito del usuario
+    let carritoKey = 'carrito_' + userId;
+
+    // Obtener el carrito de LocalStorage (si existe) usando la clave del usuario
+    let carrito = JSON.parse(localStorage.getItem(carritoKey)) || [];
+
+    // Verificar si el producto ya está en el carrito
+    let productoExistente = carrito.find(producto => producto.id === id);
+
+    if (productoExistente) {
+        // Si el producto ya está en el carrito, aumentar la cantidad
+        productoExistente.cantidad += 1;
+    } else {
+        // Si el producto no está en el carrito, agregarlo con cantidad = 1
+        carrito.push({ id, nombre, descripcion, precio, cantidad: 1 });
+    }
+
+    // Guardar el carrito actualizado en LocalStorage con la clave del usuario
+    localStorage.setItem(carritoKey, JSON.stringify(carrito));
+
+    // Mostrar mensaje de éxito usando SweetAlert2
+    Swal.fire({
+        title: '¡Éxito!',
+        text: 'Producto agregado al carrito.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        timer: 2000,
+        showConfirmButton: false
+    });
+}
+
+    </script>
 </head>
 <body>
     <div id="wrapper">
@@ -58,14 +88,28 @@
         </div>
         <div class="col-md-3">
           <ul class="top-menu">
+
+          <!-- Cuenta de usuario -->
             <li>
-              <a href="">US</a>
+              <a href="../views/pedidos.php"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-person-lines-fill" viewBox="0 0 16 16">
+  <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1z"/>
+</svg></a> 
             </li>
+           
+           <!-- Carrito de compras -->
             <li>
-              <a href="">Login</a>
+            
+            <a href="../views/carrito.php" data-toggle="modal" data-target="#cart"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+  <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+</svg>(<span class="total-count"></span>)</a>
+
             </li>
+            
             <li>
-              <a href="">Support</a>
+              <a href="../Controllers/logoutController.php" ><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-box-arrow-left" viewBox="0 0 16 16">
+  <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0z"/>
+  <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708z"/>
+</svg></a>
             </li>
           </ul>
         </div>
@@ -153,43 +197,39 @@
             </div>
           </div>
           <div class="row">
-            <div class="col-md-2">
-              <div class="card product-item" onclick="addToCart()">
-                product 1
-              </div>
+                <div class="col-md-10">
+                    <div class="row">
+                    <?php
+            if ($productos) {
+                // Iterar sobre los productos y mostrarlos
+                while ($producto = $productos->fetch_assoc()) {
+                    echo "
+                        <div class='col-md-3'>
+                            <div class='card product-item'>
+                                <h3>" . $producto['NOMBRE'] . "</h3>
+                                <p>Descripción: " . $producto['DESCRIPCION'] . "</p>
+                                <p>Precio: $" . number_format($producto['PRECIO'], 2) . "</p>
+                                <button onclick=\"agregarAlCarrito(" . $producto['ID'] . ", '" . $producto['NOMBRE'] . "', '" . $producto['DESCRIPCION'] . "', " . $producto['PRECIO'] . ")\">Agregar al carrito</button>
+                            </div>
+                        </div>
+                    ";
+                }
+            } else {
+                echo "<p>No hay productos disponibles en este momento.</p>";
+            }
+            ?>
+
+
+                    </div>
+                </div>
             </div>
-            <div class="col-md-2">
-              <div class="card product-item">
-                product
-              </div>
-            </div>
-            <div class="col-md-2">
-              <div class="card product-item">
-                product
-              </div>
-            </div>
-            <div class="col-md-2">
-              <div class="card product-item">
-                product
-              </div>
-            </div>
-            <div class="col-md-2">
-              <div class="card product-item">
-                product
-              </div>
-            </div>
-            <div class="col-md-2">
-              <div class="card product-item">
-                product
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </section>
   </div>
 </body>
         <script src="https://unpkg.co/gsap@3/dist/gsap.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="../assets/js/index.js"></script>
+        <script src="../assets/js/carrito.js"></script>
 </html>
+
