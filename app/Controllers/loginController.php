@@ -1,5 +1,12 @@
 <?php
-session_start();
+// Incluir la clase de manejo de sesiones
+    require_once __DIR__ . '/../Controllers/MySQLSessionHandler.php';
+
+    // Configurar el manejador de sesiones
+    $handler = new MySQLSessionHandler();
+    session_set_save_handler($handler, true);
+    session_start();
+
 require_once __DIR__ . '/../Models/loginModel.php';    
 
     $loginModel = new loginModel();
@@ -12,6 +19,7 @@ require_once __DIR__ . '/../Models/loginModel.php';
     $result = $loginModel->autenticar($username, $password);        
 
     if ($row = mysqli_fetch_array($result)) {
+        session_regenerate_id(true);
         $_SESSION['user_id'] = $row['ID'];
         $_SESSION['usuario'] = $row['Nombre'];
         $_SESSION['id_role'] = $row['id_role'];

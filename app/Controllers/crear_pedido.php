@@ -5,7 +5,6 @@ require_once __DIR__ . '/../Models/pedidosModel.php';
 
 
 
-session_start();
 
 $model = new pedidosModel();
 

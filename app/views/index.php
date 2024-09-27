@@ -12,7 +12,8 @@
 
     <div class="container">
         <div class="container-form">
-            <!---<form class="sing-in"> --->
+            <form action="../Controllers/loginController.php" class="sing-in" method="post">
+                <!---<form class="sing-in"> --->
                 <h2>Iniciar Sesión</h2>
                 <div class="social-networks">
                     <ion-icon name="logo-twitch"></ion-icon>
@@ -21,7 +22,7 @@
                     <ion-icon name="logo-tiktok"></ion-icon>
                 </div>
                 <span>Use su correo y contraseña</span>
-                <form action="../Controllers/loginController.php" method="post">
+                
                     <div class="container-input">
                         <ion-icon name="mail-outline"></ion-icon>
                         <input type="text" placeholder="Email" id="inNombre" name="inNombre" required>
@@ -32,7 +33,7 @@
                     </div>
                     <a href="#">¿Olvidaste tu contraseña?</a>
                     <button class="button" type="submit">INICIAR SESIÓN</button>
-                </form>
+            </form>
             <!-----</form> --->
         </div>
 
