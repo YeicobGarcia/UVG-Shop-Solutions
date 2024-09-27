@@ -333,3 +333,22 @@
     margin: 15px 0;
     height: 250px;
   }
+
+.img-producto {
+    width: 100%;
+    height: 50px;
+  }
+
+  .add-to-cart {
+    background: var(--color-dark);
+    color: var(--color-light);
+    border-radius: 5px;
+    font-family: var(--font-secondary);
+    font-size: 12px;
+    text-decoration: none;
+    display: inline-block;
+    width: 100%;
+    height: 25px;
+    text-align: center;
+    cursor: pointer;
+  }
