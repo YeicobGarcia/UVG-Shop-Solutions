@@ -7,47 +7,62 @@
     session_set_save_handler($handler, true);
     session_start();
 
-    class pedidosModel{
-        function getPedidosCliente(){
-            $conexionClass = new ConexionDB();
-            $conexion = $conexionClass->conectar();
-            $user_id = $_SESSION['user_id'];
-            $sql = "SELECT p.id_pedido, p.fecha_creacion, p.estado, p.id_usuario, u.ID  
-            FROM 
-                Pedidos p 
-            join 
-                Usuarios u on 
-                p.id_usuario = u.ID
-            where
-                u.ID = $user_id";  
+   class pedidosModel{
+    
+    function getPedidosCliente(){
+        $conexionClass = new ConexionDB();
+        $conexion = $conexionClass->conectar();
+        $user_id = $_SESSION['user_id'];
+        $sql = "SELECT p.id_pedido, p.fecha_creacion, p.estado, p.id_usuario, u.ID  
+                FROM Pedidos p 
+                JOIN Usuarios u ON p.id_usuario = u.ID
+                WHERE u.ID = $user_id";  
                 
-            $resultado = mysqli_query($conexion, $sql);
-            $conexionClass->desconectar($conexion);
-            return $resultado;
-        }
+        $resultado = mysqli_query($conexion, $sql);
+        $conexionClass->desconectar($conexion);
+        return $resultado;
+    }
 
-        function crearPedido(){
-            $conexionClass = new ConexionDB();
-            $conexion = $conexionClass->conectar();
-            $user_id = $_SESSION['user_id'];
-            $sql = "INSERT INTO Pedidos(
-                        fecha_creacion,
-                        estado,
-                        id_usuario)
-                    VALUES(
-                        now(),
-                        'Preparandose',
-                        $user_id)";
-                        
-            $resultado = mysqli_query($conexion, $sql);
-            if($resultado){
-                $conexionClass->desconectar($conexion);
-                echo "Insercion correcta";
-                return true;
-            }else{
-                $conexionClass->desconectar($conexion);
-                return false;
+    function crearPedido($carrito){
+        $conexionClass = new ConexionDB();
+        $conexion = $conexionClass->conectar();
+        $user_id = $_SESSION['user_id'];
+
+        // Insertar el pedido en la tabla Pedidos
+        $sqlPedido = "INSERT INTO Pedidos(fecha_creacion, estado, id_usuario)
+                      VALUES(now(), 'Preparandose', $user_id)";
+        $resultadoPedido = mysqli_query($conexion, $sqlPedido);
+        
+        if($resultadoPedido){
+            // Obtener el ID del pedido recién creado
+            $id_pedido = mysqli_insert_id($conexion);
+
+            // Insertar cada artículo del carrito en la tabla DetallePedido
+            foreach ($carrito as $item) {
+                $id_producto = $item['id'];
+                $cantidad = $item['cantidad'];
+                $precio = $item['precio'];
+
+                $sqlDetalle = "INSERT INTO DETALLEPEDIDO(id_pedido, id_producto, cantidad, precio)
+                               VALUES($id_pedido, $id_producto, $cantidad, $precio)";
+                $resultadoDetalle = mysqli_query($conexion, $sqlDetalle);
+                
+                if(!$resultadoDetalle){
+                    // Si falla alguna inserción en DetallePedido, cancelamos todo el pedido
+                    mysqli_query($conexion, "DELETE FROM Pedidos WHERE id_pedido = $id_pedido");
+                    $conexionClass->desconectar($conexion);
+                    return false;
+                }
             }
+
+            // Desconectar y confirmar éxito
+            $conexionClass->desconectar($conexion);
+            return true;
+        }else{
+            // Si falla la inserción del pedido
+            $conexionClass->desconectar($conexion);
+            return false;
         }
     }
+}
 ?>
