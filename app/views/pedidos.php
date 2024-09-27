@@ -1,4 +1,12 @@
 <?php
+//ini_set('display_errors', 1);
+//ini_set('display_startup_errors', 1);
+//error_reporting(E_ALL);
+require_once __DIR__ . '/../Controllers/MySQLSessionHandler.php';
+
+// Configurar el manejador de sesiones
+$handler = new MySQLSessionHandler();   
+session_set_save_handler($handler, true);
 session_start();
 if (!$_SESSION['user_id']) {
     header("location: ../views/index.php");
@@ -6,10 +14,42 @@ if (!$_SESSION['user_id']) {
 }
 
 require_once __DIR__ . '/../Models/pedidosModel.php';
+require '../../vendor/autoload.php'; // Incluir el SDK de AWS
+use Aws\Sqs\SqsClient;
 
-// Obtener los pedidos del usuario
+// Configurar el cliente de SQS
+$sqs = new SqsClient([
+    'region'  => 'us-east-1', // Cambia esto a tu región
+    'version' => 'latest',
+]);
+
+$queueUrl = 'https://sqs.us-east-1.amazonaws.com/010526258458/ColaPedidosPrueba.fifo'; // Cambia esto a tu URL de la cola
+$user_id = $_SESSION['user_id'];
+
+// Obtener los pedidos confirmados del usuario desde la base de datos
 $model = new pedidosModel();
-$pedidos = $model->getPedidosCliente();
+$pedidosConfirmados = $model->getPedidosCliente($user_id);
+
+// Obtener los pedidos pendientes del usuario desde la cola SQS
+$pedidosPendientes = [];
+$pedidosPorConfirmar = $sqs->receiveMessage([
+    'QueueUrl'            => $queueUrl,
+    'MaxNumberOfMessages' => 10, // Número máximo de mensajes a recibir (máx. 10)
+    'WaitTimeSeconds'     => 0,  // Tiempo de espera para recibir mensajes
+]);
+
+if (!empty($pedidosPorConfirmar->get('Messages'))) {
+    foreach ($pedidosPorConfirmar->get('Messages') as $mensaje) {
+        $body = json_decode($mensaje['Body'], true);
+        if ($body['user_id'] == $user_id) {
+            $pedidosPendientes[] = [
+                'id_pedido' => 'Pendiente', // Asignar "Pendiente" como ID para diferenciarlo
+                'fecha_creacion' => date('Y-m-d H:i:s'), // Puedes ajustar esto si tienes una fecha específica en el mensaje
+                'estado' => 'Pendiente de Confirmación',
+            ];
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -82,6 +122,10 @@ $pedidos = $model->getPedidosCliente();
             background-color: #dc3545;
             color: #fff;
         }
+        .status-pendiente-de-confirmacion {
+            background-color: #ffc107;
+            color: #fff;
+        }
         a.btn {
             display: inline-block;
             padding: 10px 20px;
@@ -106,7 +150,7 @@ $pedidos = $model->getPedidosCliente();
     <h1>Mis Pedidos</h1>
 
     <div class="pedidos-container">
-        <?php if ($pedidos && mysqli_num_rows($pedidos) > 0): ?>
+        <?php if (($pedidosConfirmados && mysqli_num_rows($pedidosConfirmados) > 0) || count($pedidosPendientes) > 0): ?>
             <table>
                 <thead>
                     <tr>
@@ -116,7 +160,8 @@ $pedidos = $model->getPedidosCliente();
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($pedido = mysqli_fetch_assoc($pedidos)): ?>
+                    <!-- Mostrar pedidos confirmados -->
+                    <?php while ($pedido = mysqli_fetch_assoc($pedidosConfirmados)): ?>
                     <tr>
                         <td><?php echo $pedido['id_pedido']; ?></td>
                         <td><?php echo $pedido['fecha_creacion']; ?></td>
@@ -127,6 +172,19 @@ $pedidos = $model->getPedidosCliente();
                         </td>
                     </tr>
                     <?php endwhile; ?>
+
+                    <!-- Mostrar pedidos pendientes de confirmación -->
+                    <?php foreach ($pedidosPendientes as $pedidoPendiente): ?>
+                    <tr>
+                        <td><?php echo $pedidoPendiente['id_pedido']; ?></td>
+                        <td><?php echo $pedidoPendiente['fecha_creacion']; ?></td>
+                        <td>
+                            <span class="status <?php echo getStatusClass($pedidoPendiente['estado']); ?>">
+                                <?php echo ucfirst($pedidoPendiente['estado']); ?>
+                            </span>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
                 </tbody>
             </table>
         <?php else: ?>
@@ -150,6 +208,8 @@ $pedidos = $model->getPedidosCliente();
                 return 'status-entregado';
             case 'cancelado':
                 return 'status-cancelado';
+            case 'pendiente de confirmación':
+                return 'status-pendiente-de-confirmacion';
             default:
                 return '';
         }

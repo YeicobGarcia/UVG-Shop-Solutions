@@ -7,6 +7,8 @@
     session_set_save_handler($handler, true);
     session_start();
 
+    require_once __DIR__ . '/ConexionDB.php';
+
    class pedidosModel{
     
     function getPedidosCliente(){
@@ -23,11 +25,11 @@
         return $resultado;
     }
 
-    function crearPedido($carrito){
+    function crearPedido($carrito, $user_id) {
         $conexionClass = new ConexionDB();
         $conexion = $conexionClass->conectar();
-        $user_id = $_SESSION['user_id'];
-
+        //$user_id = $_SESSION['user_id']; // Asegúrate de que esto esté configurado correctamente
+    
         // Insertar el pedido en la tabla Pedidos
         $sqlPedido = "INSERT INTO Pedidos(fecha_creacion, estado, id_usuario)
                       VALUES(now(), 'Preparandose', $user_id)";
@@ -36,13 +38,13 @@
         if($resultadoPedido){
             // Obtener el ID del pedido recién creado
             $id_pedido = mysqli_insert_id($conexion);
-
+    
             // Insertar cada artículo del carrito en la tabla DetallePedido
             foreach ($carrito as $item) {
                 $id_producto = $item['id'];
                 $cantidad = $item['cantidad'];
                 $precio = $item['precio'];
-
+    
                 $sqlDetalle = "INSERT INTO DETALLEPEDIDO(id_pedido, id_producto, cantidad, precio)
                                VALUES($id_pedido, $id_producto, $cantidad, $precio)";
                 $resultadoDetalle = mysqli_query($conexion, $sqlDetalle);
@@ -54,7 +56,7 @@
                     return false;
                 }
             }
-
+    
             // Desconectar y confirmar éxito
             $conexionClass->desconectar($conexion);
             return true;
@@ -64,5 +66,6 @@
             return false;
         }
     }
+    
 }
 ?>

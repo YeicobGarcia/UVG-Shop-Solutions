@@ -1,5 +1,5 @@
 <?php
-
+    require_once __DIR__ . '/ConexionDB.php';
     class ProductModel {
         function getProducts(){
             $conexionClass = new ConexionDB();
