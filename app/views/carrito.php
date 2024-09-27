@@ -1,4 +1,9 @@
 <?php
+require_once __DIR__ . '/../Controllers/MySQLSessionHandler.php';
+
+// Configurar el manejador de sesiones
+$handler = new MySQLSessionHandler();
+session_set_save_handler($handler, true);
 session_start();
 if (!$_SESSION['user_id']) {
     header("location: ../views/index.php");
@@ -240,6 +245,7 @@ if (!$_SESSION['user_id']) {
         // Función para mostrar el resumen del pedido (Paso 3)
         function mostrarResumen() {
             let carrito = obtenerCarrito();
+            console.log('Carrito en resumen:', carrito);
             let resumenContainer = document.getElementById('resumenContainer');
             resumenContainer.innerHTML = '';  // Limpiar contenido previo
             let totalCarrito = 0;
@@ -369,7 +375,11 @@ function confirmarPedido() {
     <!-- Navegación entre pasos -->
     <div class="step-nav">
         <button class="btn" onclick="showStep(currentStep - 1)" id="prevBtn">Anterior</button>
-        <button class="btn" onclick="if(currentStep === 2){capturarMetodoPago();} if(currentStep === 3){mostrarResumen();} showStep(currentStep + 1);" id="nextBtn">Siguiente</button>
+        <button class="btn" onclick="if(currentStep === 2){capturarMetodoPago();} showStep(currentStep + 1); if(currentStep === 3){mostrarResumen();} ;" id="nextBtn">Siguiente</button>
+    </div>
+
+    <div class="step-nav">
+        <a href="home.php" class="btn">Volver al Menú Principal</a>
     </div>
 </body>
 </html>

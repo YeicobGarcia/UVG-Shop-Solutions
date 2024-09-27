@@ -1,5 +1,4 @@
 <?php 
-
     // Incluir la clase de manejo de sesiones
     require_once __DIR__ . '/../Controllers/MySQLSessionHandler.php';
 
@@ -7,8 +6,7 @@
     $handler = new MySQLSessionHandler();
     session_set_save_handler($handler, true);
     session_start();
-
-    session_start();    
+       
     include_once('../Models/adminModel.php');    
     if (!$_SESSION['user_id']) {
       header("location: ../views/index.php");
@@ -16,10 +14,34 @@
     }
     $admClass = new adminModel();
     $result = array();
-    $result = $admClass->getPedidos();
+    //$result = $admClass->getPedidos();
 // Obtener las órdenes activas y canceladas
 $pedidosActivos = $admClass->getPedidosActivos();
 $pedidosCancelados = $admClass->getPedidosCancelados();
+
+require '../../vendor/autoload.php'; // Incluir el SDK de AWS
+use Aws\Sqs\SqsClient;
+
+$sqs = new SqsClient([
+    'region'  => 'us-east-1', // Cambia esto a tu región
+    'version' => 'latest',
+]);
+
+$queueUrl = 'https://sqs.us-east-1.amazonaws.com/010526258458/ColaPedidosPrueba.fifo'; // Cambia esto a tu URL de la cola
+
+// Recibir mensajes de la cola
+$pedidosPorConfirmar = $sqs->receiveMessage([
+    'QueueUrl'            => $queueUrl,
+    'MaxNumberOfMessages' => 10, // Número máximo de mensajes a recibir (máx. 10)
+    'WaitTimeSeconds'     => 0,  // Tiempo de espera para recibir mensajes
+]);
+
+// Verificar si hay mensajes en la cola
+$mensajesPedidos = [];
+if (!empty($pedidosPorConfirmar->get('Messages'))) {
+    $mensajesPedidos = $pedidosPorConfirmar->get('Messages');
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -48,6 +70,53 @@ $pedidosCancelados = $admClass->getPedidosCancelados();
                     <a href="../Controllers/logoutController.php" class="logout">Cerrar sesión</a>
                 </div>
             </div>
+
+            <div class="orders">
+    <h2>Órdenes por Confirmar</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Cliente</th>
+                <th>Productos</th>
+                <th>Total</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            if (count($mensajesPedidos) > 0) {
+                // Mostrar las órdenes por confirmar
+                foreach ($mensajesPedidos as $mensaje) {
+                    $body = json_decode($mensaje['Body'], true);
+                    $carrito = $body['carrito'];
+                    $totalPedido = 0;
+                    $detalleProductos = '';
+
+                    // Calcular el total del pedido y listar los productos
+                    foreach ($carrito as $item) {
+                        $totalPedido += $item['cantidad'] * $item['precio'];
+                        $detalleProductos .= $item['cantidad'] . 'x ' . $item['nombre'] . ' - Q.' . number_format($item['precio'], 2) . '<br>';
+                    }
+
+                    echo "<tr id='pedido-{$body["order_id"]}'>";
+                    echo "<td>" . $body["order_id"] . "</td>";
+                    echo "<td>" . $body["Nombre"] . "</td>";
+                    echo "<td>" . $detalleProductos . "</td>";
+                    echo "<td>Q." . number_format($totalPedido, 2) . "</td>";
+                    echo "<td class='action'>
+                            <button class='confirm-order' data-receipt='" . $mensaje['ReceiptHandle'] . "' data-body='" . htmlspecialchars(json_encode($body), ENT_QUOTES, 'UTF-8') . "'>Confirmar</button>
+                            <button class='reject-order' data-receipt='" . $mensaje['ReceiptHandle'] . "'>Rechazar</button>
+                          </td>";
+                    echo "</tr>";
+                }
+            } else {
+                echo "<tr><td colspan='5'>No hay órdenes por confirmar</td></tr>";
+            }
+            ?>
+        </tbody>
+    </table>
+</div>
 
             <!-- Órdenes Activas -->
             <div class="orders">
@@ -183,6 +252,53 @@ $pedidosCancelados = $admClass->getPedidosCancelados();
                 }
             });
         });
+
+        
+        // Confirmar pedido
+        document.querySelectorAll('.confirm-order').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const receiptHandle = this.getAttribute('data-receipt');
+                const orderData = JSON.parse(this.getAttribute('data-body'));
+                
+                fetch('../Controllers/adminController.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'confirmOrder', orderData: orderData, receiptHandle: receiptHandle })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const row = document.getElementById('pedido-' + orderData.order_id);
+                        row.remove();  // Eliminar la fila del pedido
+                    } else {
+                        alert('Error al confirmar el pedido');
+                    }
+                });
+            });
+        });
+
+        // Rechazar pedido
+        document.querySelectorAll('.reject-order').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const receiptHandle = this.getAttribute('data-receipt');
+                
+                fetch('../Controllers/adminController.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'rejectOrder', receiptHandle: receiptHandle })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const row = document.getElementById('pedido-' + receiptHandle);
+                        row.remove();  // Eliminar la fila del pedido
+                    } else {
+                        alert('Error al rechazar el pedido');
+                    }
+                });
+            });
+        });
     });
+    
 </script>
 </html>
