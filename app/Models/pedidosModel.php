@@ -24,6 +24,20 @@
         return $resultado;
     }
 
+    function getUserIdByPedido($id_pedido){
+        $conexionClass = new ConexionDB();
+        $conexion = $conexionClass->conectar();            
+        $stmt = $conexion->prepare("SELECT p.id_usuario FROM Pedidos p WHERE p.id_pedido = ?");
+        $stmt->bind_param("i", $id_pedido); // "i" indica que es un entero
+        $stmt->execute();
+        $stmt->bind_result($id_usuario); // Vincular el resultado a la variable $id_usuario
+        $stmt->fetch(); // Obtener el resultado
+            
+        $stmt->close();
+        $conexionClass->desconectar($conexion);        
+        return (int)$id_usuario;
+    }
+
     function crearPedido($carrito, $user_id) {
         $conexionClass = new ConexionDB();
         $conexion = $conexionClass->conectar();

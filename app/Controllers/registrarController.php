@@ -6,7 +6,7 @@
     
     $nombre = $_POST['nombre'];
     $email = $_POST['email'];
-    $telefono = $_POST['telefono'];
+    $telefono = '502' . $_POST['telefono'];
     $password = $_POST['password'];
 
     $registrarModel = new registrarModel();

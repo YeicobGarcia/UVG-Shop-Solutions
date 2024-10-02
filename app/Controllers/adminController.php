@@ -28,11 +28,7 @@ function enviarSMSSNS($telefono, $estado) {
     // Configurar el cliente de SNS
     $snsClient = new SnsClient([
         'region'  => 'us-east-1', // Cambia a tu región
-        'version' => 'latest',
-        'credentials' => [
-            'key'    => 'AKIAQE43J6UNDEOIW44O',
-            'secret' => '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',
-        ],
+        'version' => 'latest',        
     ]);
 
     // Mensaje del SMS
@@ -97,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
          // Mensaje del SMS
-          $message = "Actualización de estado de tu pedido de UVG SHOP GAMING: Estado \"$estado\"";
+          $message = "Actualización de estado de tu pedido de UVG SHOP GAMING: Estado \"$nuevo_estado\"";
 
 
         // Manejar eliminación de pedidos
@@ -172,11 +168,7 @@ function enviarCorreoSES($toEmail, $orderId, $carrito) {
     // Configurar el cliente de SES
     $sesClient = new SesClient([
         'region'  => 'us-east-1', // Cambia a tu región
-        'version' => '2010-12-01',
-        'credentials' => [
-            'key'    => 'AKIAQE43J6UNNFOGVWVL',
-            'secret' => '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',
-        ],
+        'version' => '2010-12-01',        
     ]);
 
     // Mensaje del correo

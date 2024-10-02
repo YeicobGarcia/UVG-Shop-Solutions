@@ -87,11 +87,7 @@ function enviarCorreoSES($toEmail, $orderId) {
     // Configurar el cliente de SES
     $sesClient = new SesClient([
         'region'  => 'us-east-1', // Cambia a tu región
-        'version' => '2010-12-01',
-        'credentials' => [
-            'key'    => 'AKIAQE43J6UNNFOGVWVL',
-            'secret' => 'leoWY6GnFbVWpwL0UrnMkG/Gz8JRL3N7iYMu1bwgS',
-        ],
+        'version' => '2010-12-01',        
     ]);
 
     // Mensaje del correo
