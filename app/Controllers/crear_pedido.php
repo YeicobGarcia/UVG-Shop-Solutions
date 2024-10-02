@@ -90,7 +90,7 @@ function enviarCorreoSES($toEmail, $orderId) {
         'version' => '2010-12-01',
         'credentials' => [
             'key'    => 'AKIAQE43J6UNNFOGVWVL',
-            'secret' => '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',
+            'secret' => 'leoWY6GnFbVWpwL0UrnMkG/Gz8JRL3N7iYMu1bwgS',
         ],
     ]);
 
