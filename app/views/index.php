@@ -27,7 +27,7 @@
                 
                     <div class="container-input">
                         <ion-icon name="mail-outline"></ion-icon>
-                        <input type="text" placeholder="Email" id="inNombre" name="inNombre" required>
+                        <input type="text" placeholder="Nombre" id="inNombre" name="inNombre" required>
                     </div>
                     <div class="container-input">
                         <ion-icon name="lock-closed-outline"></ion-icon>
@@ -89,37 +89,62 @@
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <script src="../assets/js/login.js"></script>
     <script>
-        const registerForm = document.getElementById('registerForm');
+    const registerForm = document.getElementById('registerForm');
 
-        registerForm.addEventListener('submit', async function (event) {
-            event.preventDefault(); // Evita que el formulario se envíe de manera tradicional
+    registerForm.addEventListener('submit', async function (event) {
+        event.preventDefault(); // Evita que el formulario se envíe de manera tradicional
 
-            const formData = new FormData(registerForm);
+        const formData = new FormData(registerForm);
+        try {
             const response = await fetch(registerForm.action, {
                 method: 'POST',
                 body: formData
             });
-            const result = await response.json();
 
-            if (result.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Éxito',
-                    html: result.message,
-                    confirmButtonText: 'Ok'
-                }).then (() => {
-                    window.location.href = '../views/index.php';
-                });
+            // Verificamos si la respuesta es JSON antes de intentar parsearla
+            const contentType = response.headers.get('content-type');
+
+            if (contentType && contentType.includes('application/json')) {
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        html: result.message,
+                        confirmButtonText: 'Ok'
+                    }).then(() => {
+                        window.location.href = '../views/index.php';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.message,
+                        confirmButtonText: 'Ok'
+                    });
+                }
             } else {
+                // Si no es JSON, mostramos un error genérico
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: result.message,
+                    text: 'La respuesta del servidor no es válida.',
                     confirmButtonText: 'Ok'
                 });
             }
-        });
-    </script>
+        } catch (error) {
+            // Capturamos errores de red o de la petición
+            Swal.fire({
+                icon: 'error',
+                title: 'Error en el servidor',
+                text: 'Ocurrió un error al procesar la solicitud.',
+                confirmButtonText: 'Ok'
+            });
+        }
+    });
+</script>
+
 </body>
 
 </html>

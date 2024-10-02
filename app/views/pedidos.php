@@ -18,11 +18,11 @@ use Aws\Sqs\SqsClient;
 
 // Configurar el cliente de SQS
 $sqs = new SqsClient([
-    'region'  => 'us-east-1', // Cambia esto a tu región
+    'region'  => 'us-east-1', 
     'version' => 'latest',
 ]);
 
-$queueUrl = 'https://sqs.us-east-1.amazonaws.com/010526258458/ColaPedidosPrueba.fifo'; // Cambia esto a tu URL de la cola
+$queueUrl = 'https://sqs.us-east-1.amazonaws.com/010526258458/ColaPedidosPrueba.fifo'; 
 $user_id = $_SESSION['user_id'];
 
 // Obtener los pedidos confirmados del usuario desde la base de datos
@@ -43,7 +43,7 @@ if (!empty($pedidosPorConfirmar->get('Messages'))) {
         if ($body['user_id'] == $user_id) {
             $pedidosPendientes[] = [
                 'id_pedido' => 'Pendiente', // Asignar "Pendiente" como ID para diferenciarlo
-                'fecha_creacion' => date('Y-m-d H:i:s'), // Puedes ajustar esto si tienes una fecha específica en el mensaje
+                'fecha_creacion' => date('Y-m-d H:i:s'), 
                 'estado' => 'Pendiente de Confirmación',
             ];
         }
@@ -192,7 +192,7 @@ if (!empty($pedidosPorConfirmar->get('Messages'))) {
     </div>
 
     <div style="text-align: center;">
-        <a href="home.php" class="btn">Volver a la tienda</a>
+        <a href="home.php" class="btn btnvolver">Volver a la tienda</a>
     </div>
 
     <?php

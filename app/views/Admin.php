@@ -8,7 +8,6 @@
     // Configurar el manejador de sesiones
     $handler = new MySQLSessionHandler();
     session_set_save_handler($handler, true);
-    session_start();
        
     include_once('../Models/adminModel.php');    
     if (!$_SESSION['user_id']) {

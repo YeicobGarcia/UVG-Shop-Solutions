@@ -375,6 +375,7 @@
     height: 100px;
     object-fit: cover;
     border-radius: 8px;
+    margin-bottom: -10px;
 }
 
 .product-item p {
@@ -388,8 +389,9 @@
 }
 
 .product-item button {
-    background-color: #ff4500;
-    color: #fff;
+    background-color: #00b8f0;
+    color: #000000;
+    font-size: 1em;
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
@@ -398,7 +400,7 @@
 }
 
 .product-item button:hover {
-    background-color: #ff6347;
+    background-color: #92daf7;
 }
 
 .product-item:hover {

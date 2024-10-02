@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
           </div>
           <div class="row">
-                <div class="col-md-10">
+                <div class="col-md-15">
                 <div class="row">
     <?php
     if ($productos) {
