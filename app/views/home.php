@@ -36,7 +36,7 @@
 
 
     <script>
-        // Función para agregar productos al carrito usando LocalStorage vinculado al usuario
+    // Función para agregar productos al carrito usando LocalStorage vinculado al usuario
 function agregarAlCarrito(id, nombre, descripcion, precio) {
     // Obtener el ID del usuario de la sesión
     let userId = <?php echo $_SESSION['user_id']; ?>;
