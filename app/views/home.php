@@ -5,7 +5,6 @@
   // Configurar el manejador de sesiones
   $handler = new MySQLSessionHandler();
   session_set_save_handler($handler, true);
-  session_start();
 
     if (!$_SESSION['user_id']) {
       header("location: ../views/index.php");
@@ -15,7 +14,6 @@
     //$resultado = $model->crearPedido();
 
     include_once('../Controllers/productoController.php');
-    include_once('../Controllers/carritoController.php');
 
     $productController = new ProductController();
     $productos = $productController->showProducts();
@@ -33,6 +31,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <title>UVGaming-Shop</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../assets/js/carrito.js"></script>
 
 
     <script>
@@ -61,6 +60,9 @@ function agregarAlCarrito(id, nombre, descripcion, precio) {
     // Guardar el carrito actualizado en LocalStorage con la clave del usuario
     localStorage.setItem(carritoKey, JSON.stringify(carrito));
 
+    // Actualizar el contador del carrito
+    actualizarContadorCarrito();
+
     // Mostrar mensaje de éxito usando SweetAlert2
     Swal.fire({
         title: '¡Éxito!',
@@ -71,6 +73,25 @@ function agregarAlCarrito(id, nombre, descripcion, precio) {
         showConfirmButton: false
     });
 }
+
+// Función para actualizar el contador del carrito
+function actualizarContadorCarrito() {
+    let userId = <?php echo $_SESSION['user_id']; ?>;
+    let carritoKey = 'carrito_' + userId;
+    let carrito = JSON.parse(localStorage.getItem(carritoKey)) || [];
+
+    // Contar el total de productos en el carrito
+    let totalProductos = carrito.reduce((total, producto) => total + producto.cantidad, 0);
+
+    // Actualizar el contenido del contador en el HTML
+    document.querySelector('.total-count').textContent = totalProductos;
+}
+
+// Llamar a la función para actualizar el contador al cargar la página
+document.addEventListener('DOMContentLoaded', function () {
+    actualizarContadorCarrito();
+});
+
 
     </script>
 </head>
@@ -198,29 +219,29 @@ function agregarAlCarrito(id, nombre, descripcion, precio) {
           </div>
           <div class="row">
                 <div class="col-md-10">
-                    <div class="row">
-                    <?php
-            if ($productos) {
-                // Iterar sobre los productos y mostrarlos
-                while ($producto = $productos->fetch_assoc()) {
-                    echo "
-                        <div class='col-md-3'>
-                            <div class='card product-item'>
-                                <h3>" . $producto['NOMBRE'] . "</h3>
-                                <p>Descripción: " . $producto['DESCRIPCION'] . "</p>
-                                <p>Precio: $" . number_format($producto['PRECIO'], 2) . "</p>
-                                <button onclick=\"agregarAlCarrito(" . $producto['ID'] . ", '" . $producto['NOMBRE'] . "', '" . $producto['DESCRIPCION'] . "', " . $producto['PRECIO'] . ")\">Agregar al carrito</button>
-                            </div>
-                        </div>
-                    ";
-                }
-            } else {
-                echo "<p>No hay productos disponibles en este momento.</p>";
-            }
-            ?>
-
-
+                <div class="row">
+    <?php
+    if ($productos) {
+        // Iterar sobre los productos y mostrarlos
+        while ($producto = $productos->fetch_assoc()) {
+            echo "
+                <div class='col-md-3'>
+                    <div class='card product-item'>
+                        <img src='../assets/img/32105.jpg'" . "' alt='" . $producto['NOMBRE'] . "'>
+                        <h3>" . $producto['NOMBRE'] . "</h3>
+                        <p>" . $producto['DESCRIPCION'] . "</p>
+                        <p class='price'>$" . number_format($producto['PRECIO'], 2) . "</p>
+                        <button onclick=\"agregarAlCarrito(" . $producto['ID'] . ", '" . $producto['NOMBRE'] . "', '" . $producto['DESCRIPCION'] . "', " . $producto['PRECIO'] . ")\">Agregar al carrito</button>
                     </div>
+                </div>
+            ";
+        }
+    } else {
+        echo "<p>No hay productos disponibles en este momento.</p>";
+    }
+    ?>
+</div>
+
                 </div>
             </div>
     </section>

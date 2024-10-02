@@ -7,7 +7,6 @@ require_once __DIR__ . '/../Controllers/MySQLSessionHandler.php';
 // Configurar el manejador de sesiones
 $handler = new MySQLSessionHandler();   
 session_set_save_handler($handler, true);
-session_start();
 if (!$_SESSION['user_id']) {
     header("location: ../views/index.php");
     exit();
